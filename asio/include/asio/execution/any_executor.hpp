@@ -226,6 +226,134 @@ struct is_context_as : false_type {};
 template <typename U>
 struct is_context_as<context_as_t<U> > : true_type {};
 
+#if defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
+
+// Trait used to detect whether an any_executor instantiation has a subset of
+// the properties of another.
+
+template <typename T, typename U>
+struct is_subset : false_type {};
+
+template <>
+struct is_subset<any_executor<>, any_executor<> > : true_type {};
+
+template <typename U0>
+struct is_subset<any_executor<>, any_executor<U0> > : true_type {};
+
+template <typename T0>
+struct is_subset<any_executor<T0>, any_executor<> > : false_type {};
+
+template <typename T0>
+struct is_subset<any_executor<T0>, any_executor<T0> > : true_type {};
+
+template <typename T0, typename U0>
+struct is_subset<any_executor<T0>, any_executor<U0> > : false_type {};
+
+#if defined(ASIO_HAS_VARIADIC_TEMPLATES)
+
+template <typename U0, typename... UN>
+struct is_subset<any_executor<>, any_executor<U0, UN...> > : true_type {};
+
+template <typename T0, typename... UN>
+struct is_subset<any_executor<T0>, any_executor<T0, UN...> > : true_type {};
+
+template <typename T0, typename U0, typename... UN>
+struct is_subset<any_executor<T0>, any_executor<U0, UN...> > :
+  is_subset<any_executor<T0>, any_executor<UN...> > {};
+
+template <typename T0, typename... TN>
+struct is_subset<any_executor<T0, TN...>, any_executor<> > : false_type {};
+
+template <typename T0, typename... TN>
+struct is_subset<any_executor<T0, TN...>, any_executor<T0> > :
+  is_subset<any_executor<TN...>, any_executor<T0> > {};
+
+template <typename T0, typename... TN, typename U0>
+struct is_subset<any_executor<T0, TN...>, any_executor<U0> > : false_type {};
+
+template <typename T0, typename... TN, typename... UN>
+struct is_subset<any_executor<T0, TN...>, any_executor<T0, UN...> > :
+  is_subset<any_executor<TN...>, any_executor<T0, UN...> > {};
+
+template <typename T0, typename... TN, typename U0, typename... UN>
+struct is_subset<any_executor<T0, TN...>, any_executor<U0, UN...> > :
+  integral_constant<bool,
+    is_subset<any_executor<T0>, any_executor<U0, UN...> >::value
+      && is_subset<any_executor<TN...>, any_executor<U0, UN...> >::value> {};
+
+#else // defined(ASIO_HAS_VARIADIC_TEMPLATES)
+
+template <typename U0, typename U1, typename U2, typename U3,
+    typename U4, typename U5, typename U6, typename U7>
+struct is_subset<
+    any_executor<>,
+    any_executor<U0, U1, U2, U3, U4, U5, U6, U7>
+  > : true_type {};
+
+template <typename T0, typename U1, typename U2, typename U3,
+    typename U4, typename U5, typename U6, typename U7>
+struct is_subset<
+    any_executor<T0>,
+    any_executor<T0, U1, U2, U3, U4, U5, U6, U7>
+  > : true_type {};
+
+template <typename T0,
+    typename U0, typename U1, typename U2, typename U3,
+    typename U4, typename U5, typename U6, typename U7>
+struct is_subset<
+    any_executor<T0>,
+    any_executor<U0, U1, U2, U3, U4, U5, U6, U7>
+  > : is_subset<any_executor<T0>, any_executor<U1, U2, U3, U4, U5, U6, U7> > {};
+
+template <typename T0, typename T1, typename T2, typename T3,
+    typename T4, typename T5, typename T6, typename T7>
+struct is_subset<
+    any_executor<T0, T1, T2, T3, T4, T5, T6, T7>,
+    any_executor<>
+  > : false_type {};
+
+template <typename T0, typename T1, typename T2, typename T3,
+    typename T4, typename T5, typename T6, typename T7>
+struct is_subset<
+    any_executor<T0, T1, T2, T3, T4, T5, T6, T7>,
+    any_executor<T0>
+  > : is_subset<any_executor<T1, T2, T3, T4, T5, T6, T7>, any_executor<T0> > {};
+
+template <typename T0, typename T1, typename T2, typename T3,
+    typename T4, typename T5, typename T6, typename T7,
+    typename U0>
+struct is_subset<
+    any_executor<T0, T1, T2, T3, T4, T5, T6, T7>,
+    any_executor<U0>
+  > : false_type {};
+
+template <typename T0, typename T1, typename T2, typename T3,
+    typename T4, typename T5, typename T6, typename T7,
+    typename U1, typename U2, typename U3, typename U4,
+    typename U5, typename U6, typename U7>
+struct is_subset<
+    any_executor<T0, T1, T2, T3, T4, T5, T6, T7>,
+    any_executor<T0, U1, U2, U3, U4, U5, U6, U7>
+  > : is_subset<any_executor<T1, T2, T3, T4, T5, T6, T7>,
+        any_executor<T0, U1, U2, U3, U4, U5, U6, U7> > {};
+
+template <typename T0, typename T1, typename T2, typename T3,
+    typename T4, typename T5, typename T6, typename T7,
+    typename U0, typename U1, typename U2, typename U3,
+    typename U4, typename U5, typename U6, typename U7>
+struct is_subset<
+    any_executor<T0, T1, T2, T3, T4, T5, T6, T7>,
+    any_executor<U0, U1, U2, U3, U4, U5, U6, U7>
+  > : integral_constant<bool,
+      is_subset<any_executor<T0>,
+        any_executor<U0, U1, U2, U3, U4, U5, U6, U7> >::value
+          && is_subset<any_executor<T1, T2, T3, T4, T5, T6, T7>,
+            any_executor<U0, U1, U2, U3, U4, U5, U6, U7> >::value> {};
+
+#endif // defined(ASIO_HAS_VARIADIC_TEMPLATES)
+
+#endif // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
+
 // Helper template to:
 // - Check if a target can supply the supportable properties.
 // - Find the first convertible-from-T property in the list.
@@ -1099,8 +1227,17 @@ public:
   {
   }
 
+#if defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
+  template <ASIO_EXECUTION_EXECUTOR Executor>
+  any_executor(Executor ex
+# if !defined(ASIO_HAS_CONCEPTS)
+      , typename enable_if<is_executor<Executor>::value>::type* = 0
+# endif // !defined(ASIO_HAS_CONCEPTS)
+    )
+#else // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
   template <typename Executor>
   any_executor(Executor ex)
+#endif // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
     : detail::any_executor_base(
         ASIO_MOVE_CAST(Executor)(ex), false_type())
   {
@@ -1189,8 +1326,22 @@ public:
   {
   }
 
+#if defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
+  template <ASIO_EXECUTION_EXECUTOR Executor>
+  any_executor(Executor ex,
+      typename enable_if<
+# if !defined(ASIO_HAS_CONCEPTS)
+        is_executor<Executor>::value
+        &&
+# endif // !defined(ASIO_HAS_CONCEPTS)
+        detail::supportable_properties<
+          0, void(SupportableProperties...)>::template
+            is_valid_target<Executor>::value
+      >::type* = 0)
+#else // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
   template <typename Executor>
   any_executor(Executor ex)
+#endif // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
     : detail::any_executor_base(
         ASIO_MOVE_CAST(Executor)(ex), false_type()),
       prop_fns_(prop_fns_table<Executor>())
@@ -1208,7 +1359,15 @@ public:
   }
 
   template <typename... OtherSupportableProperties>
+#if defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
+  any_executor(any_executor<OtherSupportableProperties...> other,
+      typename enable_if<
+        detail::is_subset<any_executor,
+          any_executor<OtherSupportableProperties...> >::value
+      >::type* = 0)
+#else // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
   any_executor(any_executor<OtherSupportableProperties...> other)
+#endif // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
     : detail::any_executor_base(ASIO_MOVE_CAST(
           any_executor<OtherSupportableProperties...>)(other), true_type()),
       prop_fns_(prop_fns_table<any_executor<OtherSupportableProperties...> >())
@@ -1220,6 +1379,15 @@ public:
         any_executor_target_must_support_listed_properties,
         "any_executor target must support listed properties");
   }
+
+#if defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
+  template <typename... OtherSupportableProperties>
+  any_executor(any_executor<OtherSupportableProperties...> other,
+      typename enable_if<
+        !detail::is_subset<any_executor,
+          any_executor<OtherSupportableProperties...> >::value
+      >::type* = 0) ASIO_DELETED;
+#endif // defined(ASIO_ENABLE_ANY_EXECUTOR_CONSTRUCTOR_SFINAE)
 
   any_executor(const any_executor& other) ASIO_NOEXCEPT
     : detail::any_executor_base(
