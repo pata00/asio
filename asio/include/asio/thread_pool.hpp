@@ -193,7 +193,7 @@ public:
 #endif // defined(ASIO_HAS_MOVE) || defined(GENERATING_DOCUMENTATION)
 
   /// Destructor.
-  ~basic_executor_type()
+  ~basic_executor_type() ASIO_NOEXCEPT
   {
     if (Bits & outstanding_work_tracked)
       if (pool_)
@@ -398,6 +398,14 @@ public:
         integral_constant<bool, (Bits & blocking_always) != 0>());
   }
 
+  /// Bulk execution function.
+  template <typename Function>
+  void bulk_execute(ASIO_MOVE_ARG(Function) f, std::size_t n) const
+  {
+    this->do_bulk_execute(ASIO_MOVE_CAST(Function)(f), n,
+        integral_constant<bool, (Bits & blocking_always) != 0>());
+  }
+
   /// Schedule function.
   sender_type schedule() const ASIO_NOEXCEPT
   {
@@ -514,6 +522,16 @@ private:
   /// Execution helper implementation for always blocking.
   template <typename Function>
   void do_execute(ASIO_MOVE_ARG(Function) f, true_type) const;
+
+  /// Bulk execution helper implementation for possibly and never blocking.
+  template <typename Function>
+  void do_bulk_execute(ASIO_MOVE_ARG(Function) f,
+      std::size_t n, false_type) const;
+
+  /// Bulk execution helper implementation for always blocking.
+  template <typename Function>
+  void do_bulk_execute(ASIO_MOVE_ARG(Function) f,
+      std::size_t n, true_type) const;
 
   // The underlying thread pool.
   thread_pool* pool_;

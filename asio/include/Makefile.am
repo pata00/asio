@@ -47,6 +47,7 @@ nobase_include_HEADERS = \
 	asio/detail/buffered_stream_storage.hpp \
 	asio/detail/buffer_resize_guard.hpp \
 	asio/detail/buffer_sequence_adapter.hpp \
+	asio/detail/bulk_executor_op.hpp \
 	asio/detail/call_stack.hpp \
 	asio/detail/chrono.hpp \
 	asio/detail/chrono_time_traits.hpp \
@@ -299,6 +300,7 @@ nobase_include_HEADERS = \
 	asio/execution/bad_executor.hpp \
 	asio/execution/blocking.hpp \
 	asio/execution/blocking_adaptation.hpp \
+	asio/execution/bulk_execute.hpp \
 	asio/execution/bulk_guarantee.hpp \
 	asio/execution/connect.hpp \
 	asio/execution/context.hpp \
@@ -306,7 +308,9 @@ nobase_include_HEADERS = \
 	asio/execution/detail/as_invocable.hpp \
 	asio/execution/detail/as_operation.hpp \
 	asio/execution/detail/as_receiver.hpp \
+	asio/execution/detail/bulk_sender.hpp \
 	asio/execution/detail/void_receiver.hpp \
+	asio/execution/detail/submit_receiver.hpp \
 	asio/execution/execute.hpp \
 	asio/execution/executor.hpp \
 	asio/execution/impl/bad_executor.ipp \
@@ -498,6 +502,8 @@ nobase_include_HEADERS = \
 	asio/thread.hpp \
 	asio/thread_pool.hpp \
 	asio/time_traits.hpp \
+	asio/traits/bulk_execute_free.hpp \
+	asio/traits/bulk_execute_member.hpp \
 	asio/traits/connect_free.hpp \
 	asio/traits/connect_member.hpp \
 	asio/traits/equality_comparable.hpp \
@@ -512,6 +518,8 @@ nobase_include_HEADERS = \
 	asio/traits/require_concept_member.hpp \
 	asio/traits/require_free.hpp \
 	asio/traits/require_member.hpp \
+	asio/traits/schedule_free.hpp \
+	asio/traits/schedule_member.hpp \
 	asio/traits/set_done_free.hpp \
 	asio/traits/set_done_member.hpp \
 	asio/traits/set_error_free.hpp \

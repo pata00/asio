@@ -33,10 +33,17 @@ struct as_receiver
   Function f_;
 
   template <typename F>
-  explicit as_receiver(ASIO_MOVE_ARG(F) f)
+  explicit as_receiver(ASIO_MOVE_ARG(F) f, int)
     : f_(ASIO_MOVE_CAST(F)(f))
   {
   }
+
+#if defined(ASIO_MSVC) && defined(ASIO_HAS_MOVE)
+  as_receiver(as_receiver&& other)
+    : f_(ASIO_MOVE_CAST(Function)(other.f_))
+  {
+  }
+#endif // defined(ASIO_MSVC) && defined(ASIO_HAS_MOVE)
 
   void set_value()
     ASIO_NOEXCEPT_IF(noexcept(declval<Function&>()()))

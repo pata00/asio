@@ -1,4 +1,4 @@
-AC_INIT(asio, [1.16.1])
+AC_INIT(asio, [1.17.0])
 AC_CONFIG_SRCDIR(include/asio.hpp)
 AM_MAINTAINER_MODE
 AM_INIT_AUTOMAKE([tar-ustar])
@@ -145,7 +145,7 @@ AC_COMPILE_IFELSE(
 AC_MSG_CHECKING([whether C++14 is enabled])
 AC_COMPILE_IFELSE(
   [AC_LANG_PROGRAM(
-    [[#if defined(__GNUC__)]]
+    [[#if defined(__GNUC__) && !defined(__clang__)]]
     [[# if (__GNUC__ <= 6)]]
     [[#  error C++14 support on this compiler not sufficiently compliant]]
     [[# endif]]

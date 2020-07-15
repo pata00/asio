@@ -148,6 +148,7 @@
 # define ASIO_MOVE_CAST(type) static_cast<type&&>
 # define ASIO_MOVE_CAST2(type1, type2) static_cast<type1, type2&&>
 # define ASIO_MOVE_OR_LVALUE(type) static_cast<type&&>
+# define ASIO_MOVE_OR_LVALUE_TYPE(type) type
 #endif // defined(ASIO_HAS_MOVE) && !defined(ASIO_MOVE_CAST)
 
 // If ASIO_MOVE_CAST still isn't defined, default to a C++03-compatible
@@ -175,6 +176,7 @@
 # define ASIO_MOVE_CAST(type) static_cast<const type&>
 # define ASIO_MOVE_CAST2(type1, type2) static_cast<const type1, type2&>
 # define ASIO_MOVE_OR_LVALUE(type)
+# define ASIO_MOVE_OR_LVALUE_TYPE(type) type&
 #endif // !defined(ASIO_MOVE_CAST)
 
 // Support variadic templates on compilers known to allow it.
@@ -279,10 +281,13 @@
 #    define ASIO_STATIC_CONSTEXPR_DEFAULT_INIT(type, name) \
       static const type name
 #   endif // (__GNUC__ >= 8)
-#  else // defined(__GNUC__)
+#  elif defined(ASIO_MSVC)
+#   define ASIO_STATIC_CONSTEXPR_DEFAULT_INIT(type, name) \
+     static const type name
+#  else // defined(ASIO_MSVC)
 #   define ASIO_STATIC_CONSTEXPR_DEFAULT_INIT(type, name) \
      static constexpr const type name{}
-#  endif // defined(__GNUC__)
+#  endif // defined(ASIO_MSVC)
 # else // defined(ASIO_HAS_CONSTEXPR)
 #  define ASIO_STATIC_CONSTEXPR_DEFAULT_INIT(type, name) \
     static const type name
@@ -439,11 +444,11 @@
 #   endif // (__cplusplus >= 201703)
 #  endif // defined(__clang__)
 #  if defined(__GNUC__)
-#   if (__GNUC__ >= 5)
+#   if (__GNUC__ >= 6)
 #    if (__cplusplus >= 201402)
 #     define ASIO_HAS_VARIABLE_TEMPLATES 1
 #    endif // (__cplusplus >= 201402)
-#   endif // (__GNUC__ >= 5)
+#   endif // (__GNUC__ >= 6)
 #  endif // defined(__GNUC__)
 #  if defined(ASIO_MSVC)
 #   if (_MSC_VER >= 1901)
@@ -1822,5 +1827,19 @@
 #  endif // defined(__GNUC__)
 # endif // !defined(ASIO_DISABLE_STD_COROUTINE)
 #endif // !defined(ASIO_HAS_STD_COROUTINE)
+
+// Compiler support for the the [[nodiscard]] attribute.
+#if !defined(ASIO_NODISCARD)
+# if defined(__has_cpp_attribute)
+#  if __has_cpp_attribute(nodiscard)
+#   if (__cplusplus >= 201703)
+#    define ASIO_NODISCARD [[nodiscard]]
+#   endif // (__cplusplus >= 201703)
+#  endif // __has_cpp_attribute(nodiscard)
+# endif // defined(__has_cpp_attribute)
+#endif // !defined(ASIO_NODISCARD)
+#if !defined(ASIO_NODISCARD)
+# define ASIO_NODISCARD
+#endif // !defined(ASIO_NODISCARD)
 
 #endif // ASIO_DETAIL_CONFIG_HPP
